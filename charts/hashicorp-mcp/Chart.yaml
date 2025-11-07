@@ -2,15 +2,15 @@ apiVersion: v2
 name: hashicorp-mcp
 description: Parent Helm chart for HashiCorp MCP Servers with unified ingress
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "1.0.0"
 
 dependencies:
   - name: terraform-mcp
     version: "0.1.0"
-    repository: "file://../terraform-mcp"
+    repository: "https://sammcgeown.github.io/hashicorp-mcp-servers-helm/"
     condition: terraform-mcp.enabled
   - name: vault-mcp
     version: "0.1.0"
-    repository: "file://../vault-mcp"
+    repository: "https://sammcgeown.github.io/hashicorp-mcp-servers-helm/"
     condition: vault-mcp.enabled
