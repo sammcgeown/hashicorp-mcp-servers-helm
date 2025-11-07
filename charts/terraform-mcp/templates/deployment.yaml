@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "terraform-mcp.fullname" . }}
+  labels:
+    app: {{ include "terraform-mcp.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "terraform-mcp.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "terraform-mcp.name" . }}
+    spec:
+      containers:
+      - name: terraform-mcp-server
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: TFE_ADDRESS
+          value: "{{ .Values.env.TFE_ADDRESS }}"
+        - name: TFE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.tfeSecret.name }}
+              key: TFE_TOKEN
+              optional: true
+        - name: TFE_SKIP_TLS_VERIFY
+          value: "{{ .Values.env.TFE_SKIP_TLS_VERIFY }}"
+        - name: TRANSPORT_MODE
+          value: "{{ .Values.env.TRANSPORT_MODE }}"
+        - name: TRANSPORT_HOST
+          value: "{{ .Values.env.TRANSPORT_HOST }}"
+        - name: TRANSPORT_PORT
+          value: "{{ .Values.env.TRANSPORT_PORT }}"
+        - name: MCP_ENDPOINT
+          value: "{{ .Values.env.MCP_ENDPOINT }}"
+        - name: MCP_SESSION_MODE
+          value: "{{ .Values.env.MCP_SESSION_MODE }}"
+        - name: MCP_ALLOWED_ORIGINS
+          value: "{{ .Values.env.MCP_ALLOWED_ORIGINS }}"
+        - name: MCP_CORS_MODE
+          value: "{{ .Values.env.MCP_CORS_MODE }}"
+        - name: MCP_TLS_CERT_FILE
+          {{- if .Values.tls.mount }}
+          value: "/etc/terraform-mcp/tls/tls.crt"
+          {{- else }}
+          value: ""
+          {{- end }}
+        - name: MCP_TLS_KEY_FILE
+          {{- if .Values.tls.mount }}
+          value: "/etc/terraform-mcp/tls/tls.key"
+          {{- else }}
+          value: ""
+          {{- end }}
+        - name: MCP_RATE_LIMIT_GLOBAL
+          value: "{{ .Values.env.MCP_RATE_LIMIT_GLOBAL }}"
+        - name: MCP_RATE_LIMIT_SESSION
+          value: "{{ .Values.env.MCP_RATE_LIMIT_SESSION }}"
+        - name: ENABLE_TF_OPERATIONS
+          value: "{{ .Values.env.ENABLE_TF_OPERATIONS }}"
+        resources:
+          requests:
+            cpu: "{{ .Values.resources.requests.cpu }}"
+            memory: "{{ .Values.resources.requests.memory }}"
+          limits:
+            cpu: "{{ .Values.resources.limits.cpu }}"
+            memory: "{{ .Values.resources.limits.memory }}"
+        livenessProbe:
+          httpGet:
+            path: "{{ .Values.livenessProbe.path }}"
+            port: {{ .Values.livenessProbe.port }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: "{{ .Values.readinessProbe.path }}"
+            port: {{ .Values.readinessProbe.port }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        volumeMounts:
+        {{- if .Values.tls.mount }}
+        - name: tls-secret
+          mountPath: /etc/terraform-mcp/tls
+          readOnly: true
+        {{- end }}
+      volumes:
+      {{- if .Values.tls.mount }}
+      - name: tls-secret
+        secret:
+          secretName: {{ .Values.tls.secretName | quote }}
+          items:
+          - key: tls.crt
+            path: tls.crt
+          - key: tls.key
+            path: tls.key
+      {{- end }}
