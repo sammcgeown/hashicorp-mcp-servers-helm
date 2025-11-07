@@ -62,27 +62,43 @@ Deploys the Vault MCP Server for interacting with HashiCorp Vault.
 
 ## Quick Start
 
-### Deploy All MCP Servers (Unified Ingress)
+### Install from Helm Repository
 
 ```bash
+# Add the Helm repository
+helm repo add hashicorp-mcp https://sammcgeown.github.io/hashicorp-mcp-servers-helm/
+helm repo update
+
+# Deploy all MCP servers (unified ingress)
+helm install hashicorp-mcp hashicorp-mcp/hashicorp-mcp -n mcp-servers --create-namespace
+
+# OR deploy individual MCP servers
+helm install terraform-mcp hashicorp-mcp/terraform-mcp -n mcp-servers --create-namespace
+helm install vault-mcp hashicorp-mcp/vault-mcp -n mcp-servers --create-namespace
+```
+
+### Install from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/sammcgeown/hashicorp-mcp-servers-helm.git
+cd hashicorp-mcp-servers-helm
+
+# Deploy all MCP servers (unified ingress)
 cd charts/hashicorp-mcp
 helm dependency update
 helm install hashicorp-mcp . -n mcp-servers --create-namespace
+
+# OR deploy individual MCP servers
+helm install terraform-mcp ./charts/terraform-mcp -n mcp-servers --create-namespace
+helm install vault-mcp ./charts/vault-mcp -n mcp-servers --create-namespace
 ```
+
+### Access the Services
 
 Access at:
 - `https://mcp.example.com/terraform/mcp`
 - `https://mcp.example.com/vault/mcp`
-
-### Deploy Individual MCP Server
-
-```bash
-# Terraform MCP only
-helm install terraform-mcp ./charts/terraform-mcp -n mcp-servers --create-namespace
-
-# Vault MCP only
-helm install vault-mcp ./charts/vault-mcp -n mcp-servers --create-namespace
-```
 
 ## Architecture
 

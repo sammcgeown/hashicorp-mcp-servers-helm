@@ -30,11 +30,22 @@ https://mcp.example.com/vault      →  Vault MCP Server
 
 ## Installation
 
-### Basic Installation
+### Installation from Repository
 
 ```bash
-# Update dependencies first
-cd charts/hashicorp-mcp
+helm repo add hashicorp-mcp https://sammcgeown.github.io/hashicorp-mcp-servers-helm/
+helm repo update
+helm install hashicorp-mcp hashicorp-mcp/hashicorp-mcp -n mcp-servers --create-namespace
+```
+
+### Installation from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/sammcgeown/hashicorp-mcp-servers-helm.git
+cd hashicorp-mcp-servers-helm/charts/hashicorp-mcp
+
+# Update dependencies
 helm dependency update
 
 # Install the chart
@@ -44,7 +55,7 @@ helm install hashicorp-mcp . -n mcp-servers --create-namespace
 ### Installation with Custom Values
 
 ```bash
-helm install hashicorp-mcp . -f custom-values.yaml -n mcp-servers --create-namespace
+helm install hashicorp-mcp hashicorp-mcp/hashicorp-mcp -f custom-values.yaml -n mcp-servers --create-namespace
 ```
 
 ## Configuration

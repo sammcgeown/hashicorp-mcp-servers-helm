@@ -45,10 +45,8 @@ helm install vault-mcp ./vault-mcp -f custom-values.yaml
 
 ### Installation from Repository
 
-If you're using a Helm repository:
-
 ```bash
-helm repo add hashicorp-mcp <repository-url>
+helm repo add hashicorp-mcp https://sammcgeown.github.io/hashicorp-mcp-servers-helm/
 helm repo update
 helm install vault-mcp hashicorp-mcp/vault-mcp
 ```
