@@ -1,0 +1,29 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "vault-mcp.fullname" . }}-ingress
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.ingressClassName | quote }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+  - hosts:
+    - {{ .Values.ingress.host | quote }}
+    secretName: {{ .Values.ingress.tls.secretName | quote }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.ingress.host | quote }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "vault-mcp.fullname" . }}-svc
+            port:
+              number: {{ .Values.service.port }}
+{{- end }}

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vault-mcp.fullname" . }}-deployment
+  labels:
+    {{- include "vault-mcp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "vault-mcp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "vault-mcp.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: vault-mcp-server
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        env:
+        {{- if not .Values.vaultSecret.create }}
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.vaultSecret.name }}
+              key: VAULT_TOKEN
+        {{- end }}
+        {{- range $key, $value := .Values.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- if .Values.tls.mount }}
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /etc/tls
+          readOnly: true
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.livenessProbe.path }}
+            port: {{ .Values.livenessProbe.port }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessProbe.path }}
+            port: {{ .Values.readinessProbe.port }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      {{- if .Values.tls.mount }}
+      volumes:
+      - name: tls-certs
+        secret:
+          secretName: {{ .Values.tls.secretName }}
+      {{- end }}

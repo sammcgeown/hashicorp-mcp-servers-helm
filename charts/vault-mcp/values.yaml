@@ -1,0 +1,74 @@
+replicaCount: 3
+
+image:
+  repository: hashicorp/vault-mcp-server
+  tag: "0.2.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  ingressClassName: traefik
+  host: vault-mcp.lab.definit.co.uk
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-production
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  tls:
+    enabled: true
+    secretName: vault-mcp-tls
+
+vaultSecret:
+  create: false
+  name: vault-token-secret
+  token: ""
+
+certificate:
+  enabled: false
+  name: vault-mcp-tls
+  commonName: vault-mcp.lab.definit.co.uk
+  issuer:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+
+tls:
+  mount: true
+  secretName: vault-mcp-tls
+
+env:
+  VAULT_ADDR: "https://vault.example.com"
+  VAULT_SKIP_VERIFY: "false"
+  TRANSPORT_MODE: "streamable-http"
+  TRANSPORT_HOST: "0.0.0.0"
+  TRANSPORT_PORT: "8080"
+  MCP_ENDPOINT: "/mcp"
+  MCP_SESSION_MODE: "stateless"
+  MCP_ALLOWED_ORIGINS: ""
+  MCP_CORS_MODE: "strict"
+  MCP_RATE_LIMIT_GLOBAL: "10:20"
+  MCP_RATE_LIMIT_SESSION: "5:10"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+livenessProbe:
+  path: /health
+  port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  path: /health
+  port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
