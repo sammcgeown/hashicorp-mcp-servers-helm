@@ -13,7 +13,7 @@ service:
 ingress:
   enabled: false
   ingressClassName: traefik
-  host: vault-mcp.lab.definit.co.uk
+  host: vault-mcp.example.com
   annotations: {}
     # cert-manager.io/cluster-issuer: letsencrypt-production
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -29,7 +29,7 @@ vaultSecret:
 certificate:
   enabled: false
   name: vault-mcp-tls
-  commonName: vault-mcp.lab.definit.co.uk
+  commonName: vault-mcp.example.com
   issuer:
     name: letsencrypt-production
     kind: ClusterIssuer

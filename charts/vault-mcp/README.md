@@ -94,7 +94,7 @@ vaultSecret:
 | `service.type` | Kubernetes service type | `ClusterIP` |
 | `service.port` | Service port | `80` |
 | `ingress.enabled` | Enable ingress | `false` |
-| `ingress.host` | Ingress hostname | `vault-mcp.lab.definit.co.uk` |
+| `ingress.host` | Ingress hostname | `vault-mcp.example.com` |
 | `ingress.annotations` | Custom annotations for ingress | `{}` |
 | `ingress.tls.enabled` | Enable TLS on ingress | `true` |
 | `env.VAULT_ADDR` | Vault server URL | `https://vault.example.com` |

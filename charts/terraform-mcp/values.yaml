@@ -13,7 +13,7 @@ service:
 ingress:
   enabled: false
   ingressClassName: traefik
-  host: terraform-mcp.lab.definit.co.uk
+  host: terraform-mcp.example.com
   annotations: {}
     # cert-manager.io/cluster-issuer: letsencrypt-production
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -29,7 +29,7 @@ tfeSecret:
 certificate:
   enabled: false
   name: terraform-mcp-tls
-  commonName: terraform-mcp.lab.definit.co.uk
+  commonName: terraform-mcp.example.com
   issuer:
     name: letsencrypt-production
     kind: ClusterIssuer

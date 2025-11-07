@@ -81,7 +81,7 @@ tfeSecret:
 | `service.type` | Kubernetes service type | `ClusterIP` |
 | `service.port` | Service port | `80` |
 | `ingress.enabled` | Enable ingress | `false` |
-| `ingress.host` | Ingress hostname | `terraform-mcp.lab.definit.co.uk` |
+| `ingress.host` | Ingress hostname | `terraform-mcp.example.com` |
 | `ingress.annotations` | Custom annotations for ingress | `{}` |
 | `ingress.tls.enabled` | Enable TLS on ingress | `true` |
 | `env.TFE_ADDRESS` | Terraform Enterprise/Cloud URL | `https://app.terraform.io` |
