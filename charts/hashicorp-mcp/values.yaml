@@ -1,0 +1,56 @@
+# Global ingress configuration for all MCP servers
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  host: mcp.example.com
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-production
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  tls:
+    enabled: true
+    secretName: hashicorp-mcp-tls
+
+# Certificate configuration (if using cert-manager)
+certificate:
+  enabled: false
+  name: hashicorp-mcp-tls
+  commonName: mcp.example.com
+  issuer:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+
+# Terraform MCP Server subchart configuration
+terraform-mcp:
+  enabled: true
+  # Path prefix for routing to this service
+  path: /terraform
+  # Override subchart values
+  replicaCount: 3
+  # Ingress is disabled on subchart - parent chart handles routing
+  ingress:
+    enabled: false
+  tfeSecret:
+    create: false
+    name: tfe-token-secret
+  env:
+    TFE_ADDRESS: "https://app.terraform.io"
+    TRANSPORT_MODE: "streamable-http"
+    MCP_ENDPOINT: "/mcp"
+
+# Vault MCP Server subchart configuration
+vault-mcp:
+  enabled: true
+  # Path prefix for routing to this service
+  path: /vault
+  # Override subchart values
+  replicaCount: 3
+  # Ingress is disabled on subchart - parent chart handles routing
+  ingress:
+    enabled: false
+  vaultSecret:
+    create: false
+    name: vault-token-secret
+  env:
+    VAULT_ADDR: "https://vault.example.com"
+    TRANSPORT_MODE: "streamable-http"
+    MCP_ENDPOINT: "/mcp"
