@@ -167,6 +167,90 @@ kubectl create secret generic vault-token-secret \
   --from-literal=VAULT_TOKEN=your-token
 ```
 
+## Using MCP Servers in VS Code
+
+Once your MCP servers are deployed, you can connect to them from VS Code using the HTTP transport mode.
+
+### Prerequisites
+
+- VS Code with GitHub Copilot extension
+- MCP servers deployed and accessible via ingress or port-forward
+
+### Configuration
+
+Add the MCP servers to your VS Code settings:
+
+**Option 1: Via Settings UI**
+
+1. Open VS Code Settings (Cmd+, on macOS, Ctrl+, on Windows/Linux)
+2. Search for "MCP Servers"
+3. Click "Edit in settings.json"
+
+**Option 2: Direct settings.json Edit**
+
+Open your VS Code `settings.json` and add the MCP server configuration:
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "terraform-mcp": {
+      "type": "http",
+      "url": "https://mcp.example.com/terraform/mcp"
+    },
+    "vault-mcp": {
+      "type": "http",
+      "url": "https://mcp.example.com/vault/mcp"
+    }
+  }
+}
+```
+
+**For port-forwarded servers (development):**
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "terraform-mcp": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
+    },
+    "vault-mcp": {
+      "type": "http",
+      "url": "http://localhost:8081/mcp"
+    }
+  }
+}
+```
+
+### Port Forwarding for Development
+
+If you're testing locally without ingress:
+
+```bash
+# Forward Terraform MCP
+kubectl port-forward -n mcp-servers svc/terraform-mcp 8080:80
+
+# In another terminal, forward Vault MCP
+kubectl port-forward -n mcp-servers svc/vault-mcp 8081:80
+```
+
+For the unified parent chart:
+
+```bash
+# Forward Terraform MCP
+kubectl port-forward -n mcp-servers svc/hashicorp-mcp-terraform-mcp-svc 8080:80
+
+# In another terminal, forward Vault MCP
+kubectl port-forward -n mcp-servers svc/hashicorp-mcp-vault-mcp-svc 8081:80
+```
+
+### Verify Connection
+
+1. Restart VS Code after updating settings
+2. Open GitHub Copilot Chat
+3. Try asking questions that would use Terraform or Vault functionality
+4. The MCP server tools should be available to Copilot
+
 ## Repository Structure
 
 ```
