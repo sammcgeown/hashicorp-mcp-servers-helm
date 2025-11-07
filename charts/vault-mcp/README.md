@@ -4,9 +4,24 @@ This Helm chart deploys the Vault Model Context Protocol (MCP) Server on Kuberne
 
 > **Note:** This Helm chart is provided "as-is" and is not officially maintained by HashiCorp.
 
+
+Please take not of the following warning, copied from the offical Vault MCP Server docs
+
+> **⚠️ Beta Feature**
+>
+> Beta functionality is stable but possibly incomplete and subject to change. We strongly discourage using beta features in production deployments of Vault.
+
+> **⚠️ Security Disclaimer**
+>
+> Depending on the query, the MCP server may expose certain Vault data, including Vault secrets, to MCP clients and LLMs interacting with the server. **Do not use the MCP server with untrusted MCP clients or LLMs.**
+>
+> Your use of third-party MCP clients and LLMs is subject solely to the terms of use for those MCP servers and LLMs. HashiCorp is not responsible for the performance of such third party tools. HashiCorp expressly disclaims any and all warranties and liability for third party MCP clients and LLMs, and may not be able to provide support to resolve issues caused by the third party tools.
+
 ## Overview
 
 The Vault MCP Server provides an MCP interface for interacting with HashiCorp Vault, enabling AI assistants and other tools to manage secrets, authentication, and other Vault operations.
+
+📖 **[Official Vault MCP Server Documentation](https://developer.hashicorp.com/vault/docs/mcp-server/overview)**
 
 ## Prerequisites
 
@@ -290,7 +305,8 @@ curl http://localhost:8080/health
 ## Support
 
 For issues and questions:
-- [Vault MCP Server Documentation](https://github.com/hashicorp/vault-mcp-server)
+- [Official Vault MCP Server Documentation](https://developer.hashicorp.com/vault/docs/mcp-server/overview)
+- [Vault MCP Server GitHub](https://github.com/hashicorp/vault-mcp-server)
 - Create an issue in the repository
 
 ## License

@@ -8,6 +8,8 @@ This Helm chart deploys the Terraform Model Context Protocol (MCP) Server on Kub
 
 The Terraform MCP Server provides an MCP interface for interacting with Terraform Enterprise/Cloud, enabling AI assistants and other tools to manage Terraform workspaces, runs, and configurations.
 
+📖 **[Official Terraform MCP Server Documentation](https://developer.hashicorp.com/terraform/mcp-server)**
+
 ## Prerequisites
 
 - Kubernetes 1.19+
@@ -294,7 +296,8 @@ curl http://localhost:8080/health
 ## Support
 
 For issues and questions:
-- [Terraform MCP Server Documentation](https://github.com/hashicorp/terraform-mcp-server)
+- [Official Terraform MCP Server Documentation](https://developer.hashicorp.com/terraform/mcp-server)
+- [Terraform MCP Server GitHub](https://github.com/hashicorp/terraform-mcp-server)
 - Create an issue in the repository
 
 ## License
