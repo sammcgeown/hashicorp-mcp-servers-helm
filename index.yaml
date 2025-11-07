@@ -19,7 +19,7 @@ entries:
     type: application
     urls:
     - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/hashicorp-mcp-0.1.0/hashicorp-mcp-0.1.0.tgz
-    version: 0.1.0
+    version: 0.1.1
   terraform-mcp:
   - apiVersion: v2
     appVersion: 0.3.0
