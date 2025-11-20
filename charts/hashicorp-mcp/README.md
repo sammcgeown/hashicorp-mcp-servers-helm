@@ -73,8 +73,14 @@ helm install hashicorp-mcp hashicorp-mcp/hashicorp-mcp -f custom-values.yaml -n 
 | `certificate.enabled` | Enable cert-manager certificate | `false` |
 | `terraform-mcp.enabled` | Enable Terraform MCP subchart | `true` |
 | `terraform-mcp.path` | Path prefix for Terraform MCP | `/terraform` |
+| `terraform-mcp.image.repository` | Container image repository | `hashicorp/terraform-mcp-server` |
+| `terraform-mcp.image.tag` | Container image tag | `0.3.0` |
+| `terraform-mcp.image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `vault-mcp.enabled` | Enable Vault MCP subchart | `true` |
 | `vault-mcp.path` | Path prefix for Vault MCP | `/vault` |
+| `vault-mcp.image.repository` | Container image repository | `hashicorp/vault-mcp-server` |
+| `vault-mcp.image.tag` | Container image tag | `0.3.0` |
+| `vault-mcp.image.pullPolicy` | Image pull policy | `IfNotPresent` |
 
 ### Subchart Configuration
 
@@ -141,6 +147,10 @@ terraform-mcp:
   enabled: true
   path: /terraform
   replicaCount: 5
+  image:
+    repository: hashicorp/terraform-mcp-server
+    tag: "0.3.0"
+    pullPolicy: IfNotPresent
   tfeSecret:
     create: false
     name: tfe-token-secret
@@ -159,6 +169,10 @@ vault-mcp:
   enabled: true
   path: /vault
   replicaCount: 3
+  image:
+    repository: hashicorp/vault-mcp-server
+    tag: "0.3.0"
+    pullPolicy: IfNotPresent
   vaultSecret:
     create: false
     name: vault-token-secret
@@ -206,6 +220,26 @@ terraform-mcp:
 
 vault-mcp:
   enabled: false
+```
+
+### Custom Image Configuration
+
+Override the default container images and versions:
+
+```yaml
+terraform-mcp:
+  enabled: true
+  image:
+    repository: mycustomregistry/terraform-mcp-server
+    tag: "0.4.0"
+    pullPolicy: Always
+
+vault-mcp:
+  enabled: true
+  image:
+    repository: mycustomregistry/vault-mcp-server
+    tag: "0.3.1"
+    pullPolicy: Always
 ```
 
 ## Managing Dependencies
