@@ -76,11 +76,15 @@ helm install hashicorp-mcp hashicorp-mcp/hashicorp-mcp -f custom-values.yaml -n 
 | `terraform-mcp.image.repository` | Container image repository | `hashicorp/terraform-mcp-server` |
 | `terraform-mcp.image.tag` | Container image tag | `0.3.0` |
 | `terraform-mcp.image.pullPolicy` | Image pull policy | `IfNotPresent` |
+| `terraform-mcp.tls.mount` | Mount TLS certificates | `true` |
+| `terraform-mcp.tls.secretName` | TLS secret name for pod mounts | `hashicorp-mcp-tls` |
 | `vault-mcp.enabled` | Enable Vault MCP subchart | `true` |
 | `vault-mcp.path` | Path prefix for Vault MCP | `/vault` |
 | `vault-mcp.image.repository` | Container image repository | `hashicorp/vault-mcp-server` |
 | `vault-mcp.image.tag` | Container image tag | `0.3.0` |
 | `vault-mcp.image.pullPolicy` | Image pull policy | `IfNotPresent` |
+| `vault-mcp.tls.mount` | Mount TLS certificates | `true` |
+| `vault-mcp.tls.secretName` | TLS secret name for pod mounts | `hashicorp-mcp-tls` |
 
 ### Subchart Configuration
 
@@ -151,6 +155,9 @@ terraform-mcp:
     repository: hashicorp/terraform-mcp-server
     tag: "0.3.0"
     pullPolicy: IfNotPresent
+  tls:
+    mount: true
+    secretName: hashicorp-mcp-tls
   tfeSecret:
     create: false
     name: tfe-token-secret
@@ -173,6 +180,9 @@ vault-mcp:
     repository: hashicorp/vault-mcp-server
     tag: "0.3.0"
     pullPolicy: IfNotPresent
+  tls:
+    mount: true
+    secretName: hashicorp-mcp-tls
   vaultSecret:
     create: false
     name: vault-token-secret
