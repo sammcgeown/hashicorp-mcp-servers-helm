@@ -42,6 +42,16 @@ entries:
   terraform-mcp:
   - apiVersion: v2
     appVersion: 0.3.0
+    created: "2025-11-20T15:04:42.749997738Z"
+    description: Helm chart for Terraform MCP Server
+    digest: 409f764d452f4d239d7b3654c5860b53ded37d1eea5e8995afbab399a971dfb2
+    name: terraform-mcp
+    type: application
+    urls:
+    - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/terraform-mcp-0.1.1/terraform-mcp-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.3.0
     created: "2025-11-07T17:25:50.231143132Z"
     description: Helm chart for Terraform MCP Server
     digest: 5070fda6aa793286dc6842f763d66889960d378850c0ec9f8875e14299a7466b
@@ -53,6 +63,16 @@ entries:
   vault-mcp:
   - apiVersion: v2
     appVersion: 0.2.0
+    created: "2025-11-20T15:04:42.946359248Z"
+    description: Helm chart for Vault MCP Server
+    digest: d3762d8111634796ec519bc52ba90549420970a7199cbd215b52e99f4547db3b
+    name: vault-mcp
+    type: application
+    urls:
+    - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/vault-mcp-0.1.1/vault-mcp-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.2.0
     created: "2025-11-07T17:25:50.410256116Z"
     description: Helm chart for Vault MCP Server
     digest: 4177164c95357990471c38be1452e2225045bea66438513934636248e4a5ac8f
@@ -61,4 +81,4 @@ entries:
     urls:
     - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/vault-mcp-0.1.0/vault-mcp-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-20T13:35:45.661789223Z"
+generated: "2025-11-20T15:04:42.946373445Z"
