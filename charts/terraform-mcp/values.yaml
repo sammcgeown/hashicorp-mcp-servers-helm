@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: hashicorp/terraform-mcp-server
-  tag: "0.3.0"
+  tag: "0.3.2"
   pullPolicy: IfNotPresent
 
 service:

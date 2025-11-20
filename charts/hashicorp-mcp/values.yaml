@@ -26,6 +26,11 @@ terraform-mcp:
   path: /terraform
   # Override subchart values
   replicaCount: 3
+  # Container image configuration
+  image:
+    repository: hashicorp/terraform-mcp-server
+    tag: "0.3.0"
+    pullPolicy: IfNotPresent
   # Ingress is disabled on subchart - parent chart handles routing
   ingress:
     enabled: false
@@ -44,6 +49,11 @@ vault-mcp:
   path: /vault
   # Override subchart values
   replicaCount: 3
+  # Container image configuration
+  image:
+    repository: hashicorp/vault-mcp-server
+    tag: "0.3.0"
+    pullPolicy: IfNotPresent
   # Ingress is disabled on subchart - parent chart handles routing
   ingress:
     enabled: false
