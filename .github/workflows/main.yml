@@ -20,8 +20,10 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - name: Run chart-releaser job
+      - name: Run Vault chart-releaser job
         uses: helm/chart-releaser-action@v1.7.0
+        with:
+          charts_dir: charts/vault-mcp
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true # Skip charts that have already been released
