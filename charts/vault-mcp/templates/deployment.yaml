@@ -15,15 +15,24 @@ spec:
       labels:
         {{- include "vault-mcp.selectorLabels" . | nindent 8 }}
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: vault-mcp-server
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
         ports:
         - containerPort: {{ .Values.service.targetPort }}
           protocol: TCP
         env:
-        {{- if not .Values.vaultSecret.create }}
+        {{- if .Values.vaultSecret.name }}
         - name: VAULT_TOKEN
           valueFrom:
             secretKeyRef:
@@ -33,6 +42,12 @@ spec:
         {{- range $key, $value := .Values.env }}
         - name: {{ $key }}
           value: {{ $value | quote }}
+        {{- end }}
+        {{- if .Values.tls.mount }}
+        - name: MCP_TLS_CERT_FILE
+          value: "/etc/tls/tls.crt"
+        - name: MCP_TLS_KEY_FILE
+          value: "/etc/tls/tls.key"
         {{- end }}
         {{- if .Values.tls.mount }}
         volumeMounts:
