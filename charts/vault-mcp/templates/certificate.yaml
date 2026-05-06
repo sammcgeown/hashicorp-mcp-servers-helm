@@ -1,4 +1,4 @@
-{{- if and .Values.certificate.enabled .Values.ingress.enabled }}
+{{- if .Values.certificate.enabled }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -6,11 +6,16 @@ metadata:
   labels:
     {{- include "vault-mcp.labels" . | nindent 4 }}
 spec:
-  secretName: {{ .Values.ingress.tls.secretName }}
+  secretName: {{ .Values.certificate.name }}
   commonName: {{ .Values.certificate.commonName }}
   dnsNames:
-    - {{ .Values.certificate.commonName }}
+  - {{ .Values.certificate.commonName }}
   issuerRef:
     name: {{ .Values.certificate.issuer.name }}
-    kind: {{ .Values.certificate.issuer.kind }}
+    kind: {{ default "ClusterIssuer" .Values.certificate.issuer.kind }}
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  duration: 2160h # 90d
+  renewBefore: 720h # 30d
 {{- end }}
