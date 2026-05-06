@@ -5,10 +5,10 @@ metadata:
   name: {{ include "hashicorp-mcp.fullname" . }}-ingress
   labels:
     {{- include "hashicorp-mcp.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   {{- if .Values.ingress.tls.enabled }}
@@ -26,7 +26,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ include "hashicorp-mcp.fullname" . }}-terraform-mcp-svc
+            name: {{ .Release.Name }}-terraform-mcp-svc
             port:
               number: {{ index .Values "terraform-mcp" "service" "port" | default 80 }}
       {{- end }}
@@ -35,7 +35,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ include "hashicorp-mcp.fullname" . }}-vault-mcp-svc
+            name: {{ .Release.Name }}-vault-mcp-svc
             port:
               number: {{ index .Values "vault-mcp" "service" "port" | default 80 }}
       {{- end }}
