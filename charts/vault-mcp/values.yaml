@@ -57,7 +57,7 @@ certificate:
     kind: ClusterIssuer
 
 tls:
-  mount: true
+  mount: false
   secretName: vault-mcp-tls
 
 env:
@@ -73,8 +73,6 @@ env:
   MCP_CORS_MODE: "strict"
   MCP_RATE_LIMIT_GLOBAL: "10:20"
   MCP_RATE_LIMIT_SESSION: "5:10"
-  MCP_TLS_CERT_FILE: ""
-  MCP_TLS_KEY_FILE: ""
 
 resources:
   requests:
@@ -97,3 +95,7 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
   failureThreshold: 3
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
