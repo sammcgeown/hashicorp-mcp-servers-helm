@@ -47,3 +47,12 @@ Selector labels
 app.kubernetes.io/name: {{ include "vault-mcp.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Validate required values
+*/}}
+{{- define "vault-mcp.validateValues" -}}
+{{- if not .Values.env.VAULT_ADDR }}
+{{- fail "VAULT_ADDR is required. Please set env.VAULT_ADDR in your values." }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,53 @@
+{{- if .Values.httproute.enabled }}
+{{- if .Values.httproute.gateway.create }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.httproute.gateway.name | default (printf "%s-gateway" (include "terraform-mcp.fullname" .)) }}
+  labels:
+    app: {{ include "terraform-mcp.name" . }}
+  {{- with .Values.httproute.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  gatewayClassName: {{ .Values.httproute.gateway.gatewayClassName }}
+  listeners:
+    {{- toYaml .Values.httproute.gateway.listeners | nindent 4 }}
+{{- end }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "terraform-mcp.fullname" . }}-httproute
+  labels:
+    app: {{ include "terraform-mcp.name" . }}
+  {{- with .Values.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- range .Values.httproute.parentRefs }}
+    - name: {{ .name }}
+      {{- if .namespace }}
+      namespace: {{ .namespace }}
+      {{- end }}
+      {{- if .sectionName }}
+      sectionName: {{ .sectionName }}
+      {{- end }}
+    {{- end }}
+  {{- with .Values.httproute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "terraform-mcp.fullname" . }}-svc
+          port: {{ .Values.service.port }}
+{{- end }}

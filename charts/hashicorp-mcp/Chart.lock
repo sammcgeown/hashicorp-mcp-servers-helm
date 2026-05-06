@@ -1,0 +1,9 @@
+dependencies:
+- name: terraform-mcp
+  repository: https://sammcgeown.github.io/hashicorp-mcp-servers-helm/
+  version: 0.1.1
+- name: vault-mcp
+  repository: https://sammcgeown.github.io/hashicorp-mcp-servers-helm/
+  version: 0.1.1
+digest: sha256:0ec5a37bf381ab5fc4edac8b6669c6ccb76dc9ca2a5bd5f06374599e59676884
+generated: "2026-05-06T10:07:05.746342+01:00"

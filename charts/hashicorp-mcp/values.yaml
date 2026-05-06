@@ -10,6 +10,28 @@ ingress:
     enabled: true
     secretName: hashicorp-mcp-tls
 
+# Gateway API HTTPRoute configuration (mutually exclusive with ingress)
+httproute:
+  enabled: false
+  annotations: {}
+  hostnames:
+    - mcp.example.com
+  # parentRefs specifies which Gateway(s) this HTTPRoute attaches to
+  parentRefs:
+    - name: my-gateway
+      namespace: ""        # leave empty to use the same namespace
+      # sectionName: ""    # optional: target a specific listener on the gateway
+  # gateway: deploy a new Gateway resource alongside the HTTPRoute
+  gateway:
+    create: false
+    name: ""               # defaults to <fullname>-gateway when empty
+    annotations: {}
+    gatewayClassName: ""   # required when gateway.create is true (e.g. "cilium", "istio", "kong")
+    listeners:
+      - name: http
+        protocol: HTTP
+        port: 80
+
 # Certificate configuration (if using cert-manager)
 certificate:
   enabled: false
