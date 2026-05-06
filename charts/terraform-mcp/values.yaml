@@ -57,7 +57,7 @@ certificate:
     kind: ClusterIssuer
 
 tls:
-  mount: true
+  mount: false
   secretName: terraform-mcp-tls
 
 env:
@@ -95,3 +95,7 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
   failureThreshold: 3
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
