@@ -7,7 +7,30 @@ on:
       - 'charts/**'
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chart:
+          - charts/terraform-mcp
+          - charts/vault-mcp
+          - charts/hashicorp-mcp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+      - name: Build parent chart dependencies
+        if: matrix.chart == 'charts/hashicorp-mcp'
+        run: helm dependency build charts/hashicorp-mcp
+      - name: Lint chart
+        run: helm lint "${{ matrix.chart }}"
+      - name: Render chart templates
+        run: helm template ci "${{ matrix.chart }}" > /dev/null
+
   release:
+    needs: validate
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -20,10 +43,12 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+      - name: Build parent chart dependencies
+        run: helm dependency build charts/hashicorp-mcp
       - name: Run chart-releaser job
         uses: helm/chart-releaser-action@v1.7.0
-        with:
-          skip_helm_dep: true # Subcharts are pre-packaged as .tgz in charts/hashicorp-mcp/charts/
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true # Skip charts that have already been released
