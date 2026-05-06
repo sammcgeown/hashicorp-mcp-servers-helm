@@ -49,7 +49,7 @@ spec:
             type: PathPrefix
             value: {{ index .Values "terraform-mcp" "path" }}
       backendRefs:
-        - name: {{ include "hashicorp-mcp.fullname" . }}-terraform-mcp-svc
+        - name: {{ .Release.Name }}-terraform-mcp-svc
           port: {{ index .Values "terraform-mcp" "service" "port" | default 80 }}
     {{- end }}
     {{- if index .Values "vault-mcp" "enabled" }}
@@ -58,7 +58,7 @@ spec:
             type: PathPrefix
             value: {{ index .Values "vault-mcp" "path" }}
       backendRefs:
-        - name: {{ include "hashicorp-mcp.fullname" . }}-vault-mcp-svc
+        - name: {{ .Release.Name }}-vault-mcp-svc
           port: {{ index .Values "vault-mcp" "service" "port" | default 80 }}
     {{- end }}
 {{- end }}
