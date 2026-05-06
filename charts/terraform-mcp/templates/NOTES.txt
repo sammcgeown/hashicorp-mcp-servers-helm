@@ -1,0 +1,20 @@
+Terraform MCP Server has been deployed.
+
+{{- if .Values.ingress.enabled }}
+Access the MCP endpoint at:
+  https://{{ .Values.ingress.host }}{{ .Values.env.MCP_ENDPOINT }}
+{{- else if .Values.httproute.enabled }}
+Access the MCP endpoint via Gateway API HTTPRoute.
+Hostnames: {{ join ", " .Values.httproute.hostnames }}
+MCP endpoint: {{ .Values.env.MCP_ENDPOINT }}
+{{- else }}
+No ingress is configured. Access via port-forward:
+  kubectl port-forward svc/{{ include "terraform-mcp.fullname" . }}-svc {{ .Values.service.port }}:{{ .Values.service.targetPort }}
+  curl http://localhost:{{ .Values.service.port }}{{ .Values.env.MCP_ENDPOINT }}
+{{- end }}
+
+Required secrets:
+  - {{ .Values.tfeSecret.name }}: must contain a TFE_TOKEN key
+
+Run connection tests:
+  helm test {{ .Release.Name }}
