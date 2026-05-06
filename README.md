@@ -17,7 +17,7 @@ A unified parent chart that deploys multiple HashiCorp MCP servers with a single
 - Single domain with path-based routing (e.g., `mcp.example.com/terraform`, `mcp.example.com/vault`)
 - Enable/disable individual MCP servers as needed
 - Centralized TLS and ingress configuration
-- Easy management of multiple MCP servers
+- Supports both Kubernetes Ingress and Gateway API HTTPRoute
 
 **Use this chart when:**
 - You want to deploy multiple MCP servers under a unified domain
@@ -33,7 +33,7 @@ Deploys the Terraform MCP Server for interacting with Terraform Enterprise/Cloud
 **Features:**
 - Manage Terraform workspaces, runs, and configurations through MCP
 - Optional Terraform Enterprise/Cloud integration
-- Standalone deployment with optional ingress
+- Standalone deployment with optional ingress or Gateway API HTTPRoute
 - Can be used independently or as part of the parent chart
 
 **Use this chart when:**
@@ -49,8 +49,8 @@ Deploys the Vault MCP Server for interacting with HashiCorp Vault.
 
 **Features:**
 - Manage secrets, authentication, and Vault operations through MCP
-- Optional Vault token integration
-- Standalone deployment with optional ingress
+- Supports token-based auth and alternative methods (AppRole, Kubernetes auth)
+- Standalone deployment with optional ingress or Gateway API HTTPRoute
 - Can be used independently or as part of the parent chart
 
 **Use this chart when:**
@@ -85,13 +85,22 @@ git clone https://github.com/sammcgeown/hashicorp-mcp-servers-helm.git
 cd hashicorp-mcp-servers-helm
 
 # Deploy all MCP servers (unified ingress)
-cd charts/hashicorp-mcp
-helm dependency update
-helm install hashicorp-mcp . -n mcp-servers --create-namespace
+helm dependency update charts/hashicorp-mcp
+helm install hashicorp-mcp charts/hashicorp-mcp -n mcp-servers --create-namespace
 
 # OR deploy individual MCP servers
-helm install terraform-mcp ./charts/terraform-mcp -n mcp-servers --create-namespace
-helm install vault-mcp ./charts/vault-mcp -n mcp-servers --create-namespace
+helm install terraform-mcp charts/terraform-mcp -n mcp-servers --create-namespace
+helm install vault-mcp charts/vault-mcp -n mcp-servers --create-namespace
+```
+
+### Verify the Deployment
+
+```bash
+# Check pods are running
+kubectl get pods -n mcp-servers
+
+# Run connectivity tests
+helm test hashicorp-mcp -n mcp-servers
 ```
 
 ### Access the Services
@@ -107,7 +116,7 @@ Access at:
 │                    hashicorp-mcp (Parent)                   │
 │                                                             │
 │  ┌────────────────────────────────────────────────────┐   │
-│  │          Unified Ingress Controller                │   │
+│  │          Unified Ingress / HTTPRoute               │   │
 │  │     https://mcp.example.com                        │   │
 │  └────────────────────────────────────────────────────┘   │
 │                    │                    │                  │
@@ -130,7 +139,7 @@ Access at:
 
 ## Prerequisites
 
-- Kubernetes 1.19+
+- Kubernetes 1.21+
 - Helm 3.0+
 - (Optional) cert-manager for automatic TLS certificate management
 - (Optional) Terraform Enterprise/Cloud account and token (for Terraform MCP)
@@ -142,29 +151,43 @@ Each chart can be configured independently. See the individual chart documentati
 
 ### Common Configuration Patterns
 
-**Disable ingress on subcharts (when using parent chart):**
-```yaml
-terraform-mcp:
-  ingress:
-    enabled: false
+**Configure secrets:**
+```bash
+# Terraform token
+kubectl create secret generic tfe-token-secret \
+  --from-literal=TFE_TOKEN=your-token -n mcp-servers
+
+# Vault token
+kubectl create secret generic vault-token-secret \
+  --from-literal=VAULT_TOKEN=your-token -n mcp-servers
 ```
 
 **Enable ingress on standalone charts:**
 ```yaml
 ingress:
   enabled: true
+  ingressClassName: nginx
   host: terraform-mcp.example.com
 ```
 
-**Configure secrets:**
-```bash
-# Terraform token
-kubectl create secret generic tfe-token-secret \
-  --from-literal=TFE_TOKEN=your-token
+**Use Gateway API HTTPRoute instead of Ingress:**
+```yaml
+ingress:
+  enabled: false
+httproute:
+  enabled: true
+  hostnames:
+    - mcp.example.com
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+```
 
-# Vault token
-kubectl create secret generic vault-token-secret \
-  --from-literal=VAULT_TOKEN=your-token
+**Enable PodDisruptionBudget (recommended for production):**
+```yaml
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
 ```
 
 ## Using MCP Servers in VS Code
@@ -227,14 +250,14 @@ Open your VS Code `settings.json` and add the MCP server configuration:
 If you're testing locally without ingress:
 
 ```bash
-# Forward Terraform MCP
-kubectl port-forward -n mcp-servers svc/terraform-mcp 8080:80
+# Forward Terraform MCP (standalone)
+kubectl port-forward -n mcp-servers svc/terraform-mcp-terraform-mcp-svc 8080:80
 
-# In another terminal, forward Vault MCP
-kubectl port-forward -n mcp-servers svc/vault-mcp 8081:80
+# In another terminal, forward Vault MCP (standalone)
+kubectl port-forward -n mcp-servers svc/vault-mcp-vault-mcp-svc 8081:80
 ```
 
-For the unified parent chart:
+For the unified parent chart (release name `hashicorp-mcp`):
 
 ```bash
 # Forward Terraform MCP
@@ -256,21 +279,51 @@ kubectl port-forward -n mcp-servers svc/hashicorp-mcp-vault-mcp-svc 8081:80
 ```
 .
 ├── charts/
-│   ├── hashicorp-mcp/      # Parent chart with unified ingress
+│   ├── hashicorp-mcp/           # Parent chart with unified ingress
+│   │   ├── Chart.yaml
+│   │   ├── Chart.lock
+│   │   ├── values.yaml
+│   │   ├── charts/              # Packaged subchart dependencies
+│   │   ├── templates/
+│   │   │   ├── NOTES.txt
+│   │   │   ├── _helpers.tpl
+│   │   │   ├── certificate.yaml
+│   │   │   ├── httproute.yaml
+│   │   │   └── ingress.yaml
+│   │   └── README.md
+│   ├── terraform-mcp/           # Terraform MCP standalone chart
 │   │   ├── Chart.yaml
 │   │   ├── values.yaml
 │   │   ├── templates/
+│   │   │   ├── NOTES.txt
+│   │   │   ├── _helpers.tpl
+│   │   │   ├── certificate.yaml
+│   │   │   ├── deployment.yaml
+│   │   │   ├── httproute.yaml
+│   │   │   ├── ingress.yaml
+│   │   │   ├── pdb.yaml
+│   │   │   ├── secret.yaml
+│   │   │   ├── service.yaml
+│   │   │   └── tests/
+│   │   │       └── test-connection.yaml
 │   │   └── README.md
-│   ├── terraform-mcp/       # Terraform MCP standalone chart
-│   │   ├── Chart.yaml
-│   │   ├── values.yaml
-│   │   ├── templates/
-│   │   └── README.md
-│   └── vault-mcp/           # Vault MCP standalone chart
+│   └── vault-mcp/               # Vault MCP standalone chart
 │       ├── Chart.yaml
 │       ├── values.yaml
 │       ├── templates/
+│       │   ├── NOTES.txt
+│       │   ├── _helpers.tpl
+│       │   ├── certificate.yaml
+│       │   ├── deployment.yaml
+│       │   ├── httproute.yaml
+│       │   ├── ingress.yaml
+│       │   ├── pdb.yaml
+│       │   ├── secret.yaml
+│       │   ├── service.yaml
+│       │   └── tests/
+│       │       └── test-connection.yaml
 │       └── README.md
+├── VERSIONING.md
 ├── LICENSE
 └── README.md
 ```

@@ -12,7 +12,7 @@ The Terraform MCP Server provides an MCP interface for interacting with Terrafor
 
 ## Prerequisites
 
-- Kubernetes 1.19+
+- Kubernetes 1.21+
 - Helm 3.0+
 - (Optional) A Terraform Enterprise or Terraform Cloud API token - required only if you want the MCP server to perform actions in Terraform Enterprise/Cloud
 
@@ -21,13 +21,13 @@ The Terraform MCP Server provides an MCP interface for interacting with Terrafor
 ### Basic Installation
 
 ```bash
-helm install terraform-mcp ./terraform-mcp
+helm install terraform-mcp hashicorp-mcp/terraform-mcp -n mcp-servers --create-namespace
 ```
 
 ### Installation with Custom Values
 
 ```bash
-helm install terraform-mcp ./terraform-mcp -f custom-values.yaml
+helm install terraform-mcp hashicorp-mcp/terraform-mcp -f custom-values.yaml -n mcp-servers --create-namespace
 ```
 
 ### Installation from Repository
@@ -35,7 +35,7 @@ helm install terraform-mcp ./terraform-mcp -f custom-values.yaml
 ```bash
 helm repo add hashicorp-mcp https://sammcgeown.github.io/hashicorp-mcp-servers-helm/
 helm repo update
-helm install terraform-mcp hashicorp-mcp/terraform-mcp
+helm install terraform-mcp hashicorp-mcp/terraform-mcp -n mcp-servers --create-namespace
 ```
 
 ## Configuration
@@ -44,29 +44,29 @@ helm install terraform-mcp hashicorp-mcp/terraform-mcp
 
 The MCP server can run without a Terraform Enterprise/Cloud API token, but you'll need to configure one if you want it to perform actions in Terraform Enterprise or Cloud:
 
-#### Option 1: Create Secret via Values (Not Recommended for Production)
-
-```yaml
-tfeSecret:
-  create: true
-  token: "your-tfe-token-here"
-```
-
-#### Option 2: Use Existing Secret (Recommended)
+#### Option 1: Use Existing Secret (Recommended)
 
 Create a Kubernetes secret manually:
 
 ```bash
 kubectl create secret generic tfe-token-secret \
-  --from-literal=TFE_TOKEN=your-tfe-token-here
+  --from-literal=TFE_TOKEN=your-tfe-token-here \
+  -n mcp-servers
 ```
 
 Then reference it in your values:
 
 ```yaml
 tfeSecret:
-  create: false
   name: tfe-token-secret
+```
+
+#### Option 2: Create Secret via Values (Not Recommended for Production)
+
+```yaml
+tfeSecret:
+  create: true
+  token: "your-tfe-token-here"
 ```
 
 ### Key Configuration Parameters
@@ -75,20 +75,28 @@ tfeSecret:
 |-----------|-------------|---------|
 | `replicaCount` | Number of replicas | `3` |
 | `image.repository` | Container image repository | `hashicorp/terraform-mcp-server` |
-| `image.tag` | Container image tag | `0.3.0` |
+| `image.tag` | Container image tag | `0.5.2` |
 | `service.type` | Kubernetes service type | `ClusterIP` |
 | `service.port` | Service port | `80` |
-| `ingress.enabled` | Enable ingress | `false` |
+| `ingress.enabled` | Enable Ingress | `false` |
+| `ingress.ingressClassName` | Ingress class name | `traefik` |
 | `ingress.host` | Ingress hostname | `terraform-mcp.example.com` |
 | `ingress.annotations` | Custom annotations for ingress | `{}` |
 | `ingress.tls.enabled` | Enable TLS on ingress | `true` |
+| `httproute.enabled` | Enable Gateway API HTTPRoute (mutually exclusive with ingress) | `false` |
+| `tls.mount` | Mount TLS certificate into the pod | `false` |
+| `tls.secretName` | Name of the TLS secret to mount | `terraform-mcp-tls` |
+| `certificate.enabled` | Enable cert-manager Certificate | `false` |
+| `tfeSecret.name` | Secret containing TFE_TOKEN | `tfe-token-secret` |
+| `tfeSecret.create` | Create the secret from chart values | `false` |
+| `podDisruptionBudget.enabled` | Enable PodDisruptionBudget | `false` |
+| `podDisruptionBudget.minAvailable` | Minimum available pods during disruption | `1` |
 | `env.TFE_ADDRESS` | Terraform Enterprise/Cloud URL | `https://app.terraform.io` |
 | `env.TRANSPORT_MODE` | Transport mode | `streamable-http` |
 | `env.MCP_ENDPOINT` | MCP endpoint path | `/mcp` |
+| `env.ENABLE_TF_OPERATIONS` | Enable Terraform operations | `false` |
 
 ### Environment Variables
-
-The chart supports extensive environment variable configuration:
 
 #### Terraform Enterprise Settings
 - `TFE_ADDRESS`: URL of your Terraform Enterprise or Cloud instance
@@ -108,13 +116,13 @@ The chart supports extensive environment variable configuration:
 - `MCP_RATE_LIMIT_SESSION`: Per-session rate limiting
 
 #### Feature Flags
-- `ENABLE_TF_OPERATIONS`: Enable Terraform operations
+- `ENABLE_TF_OPERATIONS`: Enable Terraform operations (default: `false`)
 
 ### TLS Configuration
 
 #### Using Cert-Manager
 
-Enable automatic certificate generation:
+`certificate.enabled` works independently of whether you use Ingress or HTTPRoute:
 
 ```yaml
 certificate:
@@ -131,26 +139,26 @@ ingress:
     secretName: terraform-mcp-tls
 ```
 
-#### Using Existing TLS Secret
+#### Mounting TLS into the Pod
+
+Enable when the application itself needs to serve or verify TLS (sets `MCP_TLS_CERT_FILE` and `MCP_TLS_KEY_FILE` automatically):
 
 ```yaml
 tls:
   mount: true
-  secretName: your-tls-secret
-
-ingress:
-  tls:
-    enabled: true
-    secretName: your-tls-secret
+  secretName: terraform-mcp-tls
 ```
 
 ## Examples
 
-### Minimal Configuration (Without Ingress)
+### Minimal Configuration (No Ingress)
 
 ```yaml
 tfeSecret:
-  create: false
+  name: tfe-token-secret
+
+env:
+  TFE_ADDRESS: "https://app.terraform.io"
 ```
 
 ### With Ingress Enabled
@@ -158,21 +166,28 @@ tfeSecret:
 ```yaml
 ingress:
   enabled: true
+  ingressClassName: nginx
   host: terraform-mcp.example.com
 
 tfeSecret:
-  create: false
+  name: tfe-token-secret
 ```
 
-### Basic Configuration (With TFE Token)
+### With Gateway API HTTPRoute
 
 ```yaml
 ingress:
+  enabled: false
+
+httproute:
   enabled: true
-  host: terraform-mcp.example.com
+  hostnames:
+    - terraform-mcp.example.com
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
 
 tfeSecret:
-  create: false
   name: tfe-token-secret
 ```
 
@@ -189,8 +204,11 @@ resources:
     cpu: "1000m"
     memory: "1Gi"
 
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
 tfeSecret:
-  create: false
   name: tfe-token-secret
 
 ingress:
@@ -238,30 +256,51 @@ env:
   MCP_CORS_MODE: "permissive"
 ```
 
+## Testing
+
+Run the built-in connectivity test after installation:
+
+```bash
+helm test terraform-mcp -n mcp-servers
+```
+
+The test pod performs a `wget --spider` check against the MCP endpoint on the chart's service.
+
 ## Upgrading
 
 ```bash
-helm upgrade terraform-mcp ./terraform-mcp -f values.yaml
+helm repo update
+helm upgrade terraform-mcp hashicorp-mcp/terraform-mcp -f values.yaml -n mcp-servers
 ```
 
 ## Uninstalling
 
 ```bash
-helm uninstall terraform-mcp
+helm uninstall terraform-mcp -n mcp-servers
 ```
 
 ## Health Checks
 
-The chart includes liveness and readiness probes:
+The chart includes liveness and readiness probes on the `/health` endpoint:
 
-- **Liveness Probe**: Checks `/health` endpoint every 10 seconds
-- **Readiness Probe**: Checks `/health` endpoint every 10 seconds
+- **Liveness Probe**: initial delay 30s, period 10s
+- **Readiness Probe**: initial delay 5s, period 10s
+
+## Security
+
+All pods run with a restricted security context:
+
+- `runAsNonRoot: true`
+- `allowPrivilegeEscalation: false`
+- `readOnlyRootFilesystem: true`
+- `capabilities.drop: ["ALL"]`
+- `seccompProfile: RuntimeDefault`
 
 ## Accessing the Service
 
 After installation, the MCP endpoint will be available at:
 
-- **Internal**: `http://terraform-mcp.<namespace>.svc.cluster.local/mcp`
+- **Internal**: `http://<release-name>-terraform-mcp-svc.<namespace>.svc.cluster.local/mcp`
 - **External** (if ingress enabled): `https://<ingress.host>/mcp`
 
 ## Troubleshooting
@@ -269,26 +308,30 @@ After installation, the MCP endpoint will be available at:
 ### Check Pod Status
 
 ```bash
-kubectl get pods -l app.kubernetes.io/name=terraform-mcp
+kubectl get pods -l app.kubernetes.io/name=terraform-mcp -n mcp-servers
 ```
 
 ### View Logs
 
 ```bash
-kubectl logs -l app.kubernetes.io/name=terraform-mcp
+kubectl logs -l app.kubernetes.io/name=terraform-mcp -n mcp-servers
 ```
 
 ### Check Service
 
+Service names follow the pattern `<release-name>-terraform-mcp-svc`:
+
 ```bash
-kubectl get svc terraform-mcp
+kubectl get svc -l app.kubernetes.io/name=terraform-mcp -n mcp-servers
 ```
 
 ### Test Health Endpoint
 
 ```bash
-kubectl port-forward svc/terraform-mcp 8080:80
+# Replace <release-name> with your Helm release name
+kubectl port-forward -n mcp-servers svc/<release-name>-terraform-mcp-svc 8080:80
 curl http://localhost:8080/health
+curl http://localhost:8080/mcp
 ```
 
 ## Support
