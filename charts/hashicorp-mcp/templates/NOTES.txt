@@ -1,0 +1,31 @@
+HashiCorp MCP Servers have been deployed.
+
+{{- if .Values.ingress.enabled }}
+Access the MCP endpoints at:
+{{- if index .Values "terraform-mcp" "enabled" }}
+  Terraform MCP: https://{{ .Values.ingress.host }}{{ index .Values "terraform-mcp" "path" }}
+{{- end }}
+{{- if index .Values "vault-mcp" "enabled" }}
+  Vault MCP:     https://{{ .Values.ingress.host }}{{ index .Values "vault-mcp" "path" }}
+{{- end }}
+{{- else if .Values.httproute.enabled }}
+Access the MCP endpoints via Gateway API HTTPRoute.
+Hostnames: {{ join ", " .Values.httproute.hostnames }}
+{{- if index .Values "terraform-mcp" "enabled" }}
+  Terraform MCP path: {{ index .Values "terraform-mcp" "path" }}
+{{- end }}
+{{- if index .Values "vault-mcp" "enabled" }}
+  Vault MCP path:     {{ index .Values "vault-mcp" "path" }}
+{{- end }}
+{{- else }}
+No ingress is configured. Access via port-forward:
+{{- if index .Values "terraform-mcp" "enabled" }}
+  kubectl port-forward svc/{{ .Release.Name }}-terraform-mcp-svc 8080:80
+{{- end }}
+{{- if index .Values "vault-mcp" "enabled" }}
+  kubectl port-forward svc/{{ .Release.Name }}-vault-mcp-svc 8081:80
+{{- end }}
+{{- end }}
+
+Run connection tests:
+  helm test {{ .Release.Name }}
