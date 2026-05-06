@@ -47,24 +47,27 @@ appVersion: "0.5.2" # Default image tag — informational only
       helm package charts/vault-mcp -d charts/hashicorp-mcp/charts/
       helm package charts/terraform-mcp -d charts/hashicorp-mcp/charts/
 
-3.  Delete the old .tgz files from charts/hashicorp-mcp/charts/
-    (helm package does not remove them automatically)
+3.  Delete the old .tgz from charts/hashicorp-mcp/charts/
+    (helm package does not remove old versions automatically)
 
 4.  Update charts/hashicorp-mcp/Chart.yaml:
     - Set each dependency's version to the new subchart version
     - Bump the parent chart's own version
 
-5.  Regenerate the lock file:
-      helm dependency update charts/hashicorp-mcp
-
-6.  Lint and template-check all three charts:
+5.  Lint and template-check all three charts:
       helm lint charts/vault-mcp
       helm lint charts/terraform-mcp
       helm lint charts/hashicorp-mcp
       helm template test charts/hashicorp-mcp
 
-7.  Commit all changed files together in a single commit (or one per chart).
+6.  Commit all changed files together in a single commit (or one per chart).
 ```
+
+> **Note:** `Chart.lock` is excluded from version control (see `.gitignore`). Subcharts are
+> vendored as `.tgz` files in `charts/hashicorp-mcp/charts/`, and the release workflow uses
+> `skip_helm_dep: true` so `helm dependency build` is never run in CI. If you need to inspect
+> resolved dependencies locally, run `helm dependency update charts/hashicorp-mcp` — but do
+> not commit the resulting `Chart.lock`.
 
 ## Which chart(s) to bump
 
@@ -90,16 +93,12 @@ rm charts/hashicorp-mcp/charts/vault-mcp-0.2.0.tgz
 #    - dependencies vault-mcp version: "0.2.0" -> "0.2.1"
 #    - version: 0.2.0 -> 0.2.1
 
-# 5. Regenerate lock
-helm dependency update charts/hashicorp-mcp
-
-# 6. Lint
+# 5. Lint
 helm lint charts/vault-mcp charts/hashicorp-mcp
 
-# 7. Commit
+# 6. Commit
 git add charts/vault-mcp/Chart.yaml \
         charts/hashicorp-mcp/Chart.yaml \
-        charts/hashicorp-mcp/Chart.lock \
         charts/hashicorp-mcp/charts/vault-mcp-0.2.1.tgz
 git commit -m "fix(vault-mcp): bump to 0.2.1"
 ```

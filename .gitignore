@@ -1,2 +1,6 @@
 .claude/
 AGENTS.md
+
+# Chart.lock is not committed — subcharts are vendored as .tgz files in charts/*/charts/
+# and chart-releaser uses skip_helm_dep: true. Run `helm dep update` locally if needed.
+charts/hashicorp-mcp/Chart.lock
