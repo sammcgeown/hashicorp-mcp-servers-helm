@@ -51,7 +51,7 @@ terraform-mcp:
   # Container image configuration
   image:
     repository: hashicorp/terraform-mcp-server
-    tag: "0.3.0"
+    tag: "0.5.2"
     pullPolicy: IfNotPresent
   # Ingress is disabled on subchart - parent chart handles routing
   ingress:
@@ -77,7 +77,7 @@ vault-mcp:
   # Container image configuration
   image:
     repository: hashicorp/vault-mcp-server
-    tag: "0.3.0"
+    tag: "0.2.0"
     pullPolicy: IfNotPresent
   # Ingress is disabled on subchart - parent chart handles routing
   ingress:
