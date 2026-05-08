@@ -11,6 +11,6 @@ dependencies:
     repository: "file://../terraform-mcp"
     condition: terraform-mcp.enabled
   - name: vault-mcp
-    version: "0.2.1"
+    version: "0.2.2"
     repository: "file://../vault-mcp"
     condition: vault-mcp.enabled
