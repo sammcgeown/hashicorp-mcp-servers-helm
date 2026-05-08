@@ -159,6 +159,16 @@ entries:
   vault-mcp:
   - apiVersion: v2
     appVersion: 0.2.0
+    created: "2026-05-08T14:42:39.070914701Z"
+    description: Helm chart for Vault MCP Server
+    digest: b0c33203307af1194a9aab3ce07c8633db26b126b93b3990b0533ee71576ddc6
+    name: vault-mcp
+    type: application
+    urls:
+    - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/vault-mcp-0.2.2/vault-mcp-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: 0.2.0
     created: "2026-05-07T16:18:03.025858218Z"
     description: Helm chart for Vault MCP Server
     digest: c657868fb4b454d89e4f36790172a2520098d4811fc55b72414fb36ef07a3c86
@@ -197,4 +207,4 @@ entries:
     urls:
     - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/vault-mcp-0.1.0/vault-mcp-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-07T16:18:03.025910987Z"
+generated: "2026-05-08T14:42:39.0709623Z"
