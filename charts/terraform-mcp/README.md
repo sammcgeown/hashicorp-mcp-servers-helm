@@ -75,7 +75,7 @@ tfeSecret:
 |-----------|-------------|---------|
 | `replicaCount` | Number of replicas | `3` |
 | `image.repository` | Container image repository | `hashicorp/terraform-mcp-server` |
-| `image.tag` | Container image tag | `0.5.2` |
+| `image.tag` | Container image tag | `1.0.0` |
 | `service.type` | Kubernetes service type | `ClusterIP` |
 | `service.port` | Service port | `80` |
 | `ingress.enabled` | Enable Ingress | `false` |
@@ -92,15 +92,25 @@ tfeSecret:
 | `podDisruptionBudget.enabled` | Enable PodDisruptionBudget | `false` |
 | `podDisruptionBudget.minAvailable` | Minimum available pods during disruption | `1` |
 | `env.TFE_ADDRESS` | Terraform Enterprise/Cloud URL | `https://app.terraform.io` |
+| `env.LOG_LEVEL` | Log level (`trace`, `debug`, `info`, `warn`, `error`) | `info` |
+| `env.LOG_FORMAT` | Log format (`text` or `json`) | `text` |
 | `env.TRANSPORT_MODE` | Transport mode | `streamable-http` |
 | `env.MCP_ENDPOINT` | MCP endpoint path | `/mcp` |
+| `env.MCP_KEEP_ALIVE` | Keep-alive interval for SSE connections (e.g. `30s`, `1m`) | `0` |
+| `env.MCP_CORS_MODE` | CORS mode (`strict`, `development`, or `disabled`) | `strict` |
 | `env.ENABLE_TF_OPERATIONS` | Enable Terraform operations | `false` |
+| `env.OTEL_METRICS_ENABLED` | Enable OpenTelemetry metrics | `false` |
+| `env.OTEL_METRICS_ENDPOINT` | OTel Collector or backend URL | `localhost:4318` |
 
 ### Environment Variables
 
 #### Terraform Enterprise Settings
 - `TFE_ADDRESS`: URL of your Terraform Enterprise or Cloud instance
 - `TFE_SKIP_TLS_VERIFY`: Skip TLS verification (use with caution)
+
+#### Logging
+- `LOG_LEVEL`: Log level — `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `panic` (default: `info`)
+- `LOG_FORMAT`: Log output format — `text` or `json` (default: `text`)
 
 #### Transport Configuration
 - `TRANSPORT_MODE`: Transport protocol (`streamable-http`)
@@ -109,14 +119,22 @@ tfeSecret:
 
 #### MCP Settings
 - `MCP_ENDPOINT`: Endpoint path for MCP requests
-- `MCP_SESSION_MODE`: Session handling mode
-- `MCP_ALLOWED_ORIGINS`: CORS allowed origins
-- `MCP_CORS_MODE`: CORS mode (`strict` or `permissive`)
-- `MCP_RATE_LIMIT_GLOBAL`: Global rate limiting
-- `MCP_RATE_LIMIT_SESSION`: Per-session rate limiting
+- `MCP_KEEP_ALIVE`: Keep-alive interval for SSE connections (e.g. `30s`, `1m`; `0` to disable)
+- `MCP_SESSION_MODE`: Session handling mode (`stateful` or `stateless`)
+- `MCP_ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins
+- `MCP_CORS_MODE`: CORS mode — `strict`, `development`, or `disabled` (default: `strict`)
+- `MCP_RATE_LIMIT_GLOBAL`: Global rate limit in `rps:burst` format (default: `10:20`)
+- `MCP_RATE_LIMIT_SESSION`: Per-session rate limit in `rps:burst` format (default: `5:10`)
 
 #### Feature Flags
-- `ENABLE_TF_OPERATIONS`: Enable Terraform operations (default: `false`)
+- `ENABLE_TF_OPERATIONS`: Enable tools that require explicit approval (default: `false`)
+
+#### OpenTelemetry Metrics
+- `OTEL_METRICS_ENABLED`: Enable OpenTelemetry metrics (default: `false`)
+- `OTEL_METRICS_SERVICE_NAME`: Service name reported in metrics (default: `terraform-mcp-server`)
+- `OTEL_METRICS_SERVICE_VERSION`: Version identifier for metrics (default: `latest`)
+- `OTEL_METRICS_EXPORT_INTERVAL`: Metric flush frequency in seconds (default: `2`)
+- `OTEL_METRICS_ENDPOINT`: OTel Collector or backend URL (default: `localhost:4318`)
 
 ### TLS Configuration
 
@@ -253,7 +271,7 @@ ingress:
 
 env:
   TFE_SKIP_TLS_VERIFY: "true"
-  MCP_CORS_MODE: "permissive"
+  MCP_CORS_MODE: "development"
 ```
 
 ## Testing

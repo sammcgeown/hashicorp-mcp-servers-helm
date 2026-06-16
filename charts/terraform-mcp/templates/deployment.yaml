@@ -16,7 +16,7 @@ spec:
         {{- include "terraform-mcp.selectorLabels" . | nindent 8 }}
     spec:
       securityContext:
-        runAsNonRoot: false
+        runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       containers:
