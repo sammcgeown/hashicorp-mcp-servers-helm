@@ -70,11 +70,46 @@ helm install hashicorp-mcp hashicorp-mcp/hashicorp-mcp -f custom-values.yaml -n 
 | `certificate.enabled` | Enable cert-manager Certificate (works with ingress or httproute) | `false` |
 | `terraform-mcp.enabled` | Enable Terraform MCP subchart | `true` |
 | `terraform-mcp.path` | Path prefix for Terraform MCP | `/terraform` |
+| `terraform-mcp.replicaCount` | Number of replicas | `3` |
 | `terraform-mcp.image.repository` | Container image repository | `hashicorp/terraform-mcp-server` |
-| `terraform-mcp.image.tag` | Container image tag | `0.5.2` |
+| `terraform-mcp.image.tag` | Container image tag | `1.0.0` |
 | `terraform-mcp.image.pullPolicy` | Image pull policy | `IfNotPresent` |
-| `terraform-mcp.tls.mount` | Mount TLS certificate into the pod | `false` |
+| `terraform-mcp.tls.mount` | Mount TLS certificate into the pod | `true` |
 | `terraform-mcp.tls.secretName` | TLS secret name to mount | `hashicorp-mcp-tls` |
+| `terraform-mcp.tfeSecret.create` | Create the TFE token secret | `false` |
+| `terraform-mcp.tfeSecret.name` | Name of the TFE token secret | `tfe-token-secret` |
+| `terraform-mcp.env.TFE_ADDRESS` | Terraform Enterprise/Cloud API address | `https://app.terraform.io` |
+| `terraform-mcp.env.TFE_SKIP_TLS_VERIFY` | Skip TLS verification for TFE | `false` |
+| `terraform-mcp.env.LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
+| `terraform-mcp.env.LOG_FORMAT` | Log format (`text`, `json`) | `text` |
+| `terraform-mcp.env.TRANSPORT_MODE` | Transport mode (`streamable-http`, `sse`) | `streamable-http` |
+| `terraform-mcp.env.TRANSPORT_HOST` | Host address to bind | `0.0.0.0` |
+| `terraform-mcp.env.TRANSPORT_PORT` | Port to listen on | `8080` |
+| `terraform-mcp.env.MCP_ENDPOINT` | MCP endpoint path | `/mcp` |
+| `terraform-mcp.env.MCP_KEEP_ALIVE` | Keep-alive timeout in seconds (0 = disabled) | `0` |
+| `terraform-mcp.env.MCP_SESSION_MODE` | Session mode (`stateless`, `stateful`) | `stateless` |
+| `terraform-mcp.env.MCP_ALLOWED_ORIGINS` | Comma-separated allowed CORS origins | `""` |
+| `terraform-mcp.env.MCP_CORS_MODE` | CORS mode (`strict`, `permissive`) | `strict` |
+| `terraform-mcp.env.MCP_RATE_LIMIT_GLOBAL` | Global rate limit (`requests:burst`) | `10:20` |
+| `terraform-mcp.env.MCP_RATE_LIMIT_SESSION` | Per-session rate limit (`requests:burst`) | `5:10` |
+| `terraform-mcp.env.ENABLE_TF_OPERATIONS` | Enable Terraform run/apply operations | `false` |
+| `terraform-mcp.env.OTEL_METRICS_ENABLED` | Enable OpenTelemetry metrics export | `false` |
+| `terraform-mcp.env.OTEL_METRICS_SERVICE_NAME` | OTel service name | `terraform-mcp-server` |
+| `terraform-mcp.env.OTEL_METRICS_SERVICE_VERSION` | OTel service version | `latest` |
+| `terraform-mcp.env.OTEL_METRICS_EXPORT_INTERVAL` | OTel metrics export interval (seconds) | `2` |
+| `terraform-mcp.env.OTEL_METRICS_ENDPOINT` | OTel collector endpoint | `localhost:4318` |
+| `terraform-mcp.livenessProbe.path` | Liveness probe HTTP path | `/health` |
+| `terraform-mcp.livenessProbe.port` | Liveness probe port | `8080` |
+| `terraform-mcp.livenessProbe.initialDelaySeconds` | Liveness probe initial delay | `30` |
+| `terraform-mcp.livenessProbe.periodSeconds` | Liveness probe period | `10` |
+| `terraform-mcp.livenessProbe.failureThreshold` | Liveness probe failure threshold | `3` |
+| `terraform-mcp.readinessProbe.path` | Readiness probe HTTP path | `/health` |
+| `terraform-mcp.readinessProbe.port` | Readiness probe port | `8080` |
+| `terraform-mcp.readinessProbe.initialDelaySeconds` | Readiness probe initial delay | `5` |
+| `terraform-mcp.readinessProbe.periodSeconds` | Readiness probe period | `10` |
+| `terraform-mcp.readinessProbe.failureThreshold` | Readiness probe failure threshold | `3` |
+| `terraform-mcp.podDisruptionBudget.enabled` | Enable PodDisruptionBudget | `false` |
+| `terraform-mcp.podDisruptionBudget.minAvailable` | Minimum available pods | `1` |
 | `vault-mcp.enabled` | Enable Vault MCP subchart | `true` |
 | `vault-mcp.path` | Path prefix for Vault MCP | `/vault` |
 | `vault-mcp.image.repository` | Container image repository | `hashicorp/vault-mcp-server` |
@@ -149,7 +184,7 @@ terraform-mcp:
   path: /terraform
   replicaCount: 5
   image:
-    tag: "0.5.2"
+    tag: "1.0.0"
   tls:
     mount: true
     secretName: hashicorp-mcp-tls

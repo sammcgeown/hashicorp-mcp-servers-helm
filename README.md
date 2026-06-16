@@ -32,7 +32,9 @@ Deploys the Terraform MCP Server for interacting with Terraform Enterprise/Cloud
 
 **Features:**
 - Manage Terraform workspaces, runs, and configurations through MCP
-- Optional Terraform Enterprise/Cloud integration
+- Optional Terraform Enterprise/Cloud integration (enable write operations with `ENABLE_TF_OPERATIONS`)
+- Configurable rate limiting, CORS controls, and session modes for production hardening
+- OpenTelemetry metrics export support
 - Standalone deployment with optional ingress or Gateway API HTTPRoute
 - Can be used independently or as part of the parent chart
 
@@ -188,6 +190,32 @@ httproute:
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
+```
+
+**Enable Terraform write operations:**
+```yaml
+terraform-mcp:
+  env:
+    ENABLE_TF_OPERATIONS: "true"
+```
+
+**Harden CORS and rate limiting:**
+```yaml
+terraform-mcp:
+  env:
+    MCP_CORS_MODE: "strict"
+    MCP_ALLOWED_ORIGINS: "https://my-app.example.com"
+    MCP_RATE_LIMIT_GLOBAL: "10:20"
+    MCP_RATE_LIMIT_SESSION: "5:10"
+```
+
+**Enable OpenTelemetry metrics:**
+```yaml
+terraform-mcp:
+  env:
+    OTEL_METRICS_ENABLED: "true"
+    OTEL_METRICS_ENDPOINT: "otel-collector.monitoring.svc:4318"
+    OTEL_METRICS_SERVICE_NAME: "terraform-mcp-server"
 ```
 
 ## Using MCP Servers in VS Code

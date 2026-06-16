@@ -51,7 +51,7 @@ terraform-mcp:
   # Container image configuration
   image:
     repository: hashicorp/terraform-mcp-server
-    tag: "0.5.2"
+    tag: "1.0.0"
     pullPolicy: IfNotPresent
   # Ingress is disabled on subchart - parent chart handles routing
   ingress:
@@ -64,8 +64,40 @@ terraform-mcp:
     name: tfe-token-secret
   env:
     TFE_ADDRESS: "https://app.terraform.io"
+    TFE_SKIP_TLS_VERIFY: "false"
+    LOG_LEVEL: "info"
+    LOG_FORMAT: "text"
     TRANSPORT_MODE: "streamable-http"
+    TRANSPORT_HOST: "0.0.0.0"
+    TRANSPORT_PORT: "8080"
     MCP_ENDPOINT: "/mcp"
+    MCP_KEEP_ALIVE: "0"
+    MCP_SESSION_MODE: "stateless"
+    MCP_ALLOWED_ORIGINS: ""
+    MCP_CORS_MODE: "strict"
+    MCP_RATE_LIMIT_GLOBAL: "10:20"
+    MCP_RATE_LIMIT_SESSION: "5:10"
+    ENABLE_TF_OPERATIONS: "false"
+    OTEL_METRICS_ENABLED: "false"
+    OTEL_METRICS_SERVICE_VERSION: "latest"
+    OTEL_METRICS_SERVICE_NAME: "terraform-mcp-server"
+    OTEL_METRICS_EXPORT_INTERVAL: "2"
+    OTEL_METRICS_ENDPOINT: "localhost:4318"
+  livenessProbe:
+    path: /health
+    port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 3
+  readinessProbe:
+    path: /health
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 1
 
 # Vault MCP Server subchart configuration
 vault-mcp:
