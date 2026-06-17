@@ -3,6 +3,25 @@ entries:
   hashicorp-mcp:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-06-17T12:46:54.021542946Z"
+    dependencies:
+    - condition: terraform-mcp.enabled
+      name: terraform-mcp
+      repository: file://../terraform-mcp
+      version: 0.2.3
+    - condition: vault-mcp.enabled
+      name: vault-mcp
+      repository: file://../vault-mcp
+      version: 0.2.2
+    description: Parent Helm chart for HashiCorp MCP Servers with unified ingress
+    digest: e5dfae01fc2c46a22474c677a6f1d55d0edcbf1214d9786c8d0eff110d8be1b0
+    name: hashicorp-mcp
+    type: application
+    urls:
+    - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/hashicorp-mcp-0.2.3/hashicorp-mcp-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-06-16T14:14:34.342072548Z"
     dependencies:
     - condition: terraform-mcp.enabled
@@ -137,6 +156,16 @@ entries:
   terraform-mcp:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-06-17T12:46:54.197190248Z"
+    description: Helm chart for Terraform MCP Server
+    digest: c1ec7ee5fdbfcbb7e9526915180cdfadccdd69d452cf5a03dcaf6299d72f27f1
+    name: terraform-mcp
+    type: application
+    urls:
+    - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/terraform-mcp-0.2.3/terraform-mcp-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-06-16T14:14:34.620426889Z"
     description: Helm chart for Terraform MCP Server
     digest: 51b9e5145d52107a3244386238ee555de9d4073ebb579ee5f129c902cd224805
@@ -236,4 +265,4 @@ entries:
     urls:
     - https://github.com/sammcgeown/hashicorp-mcp-servers-helm/releases/download/vault-mcp-0.1.0/vault-mcp-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-16T14:14:34.620474511Z"
+generated: "2026-06-17T12:46:54.197241475Z"
