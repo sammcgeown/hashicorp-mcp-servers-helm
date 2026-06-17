@@ -48,6 +48,12 @@ spec:
         - path:
             type: PathPrefix
             value: {{ index .Values "terraform-mcp" "path" }}
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: {{ .Release.Name }}-terraform-mcp-svc
           port: {{ index .Values "terraform-mcp" "service" "port" | default 80 }}
@@ -57,6 +63,12 @@ spec:
         - path:
             type: PathPrefix
             value: {{ index .Values "vault-mcp" "path" }}
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: {{ .Release.Name }}-vault-mcp-svc
           port: {{ index .Values "vault-mcp" "service" "port" | default 80 }}
